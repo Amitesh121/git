@@ -50,7 +50,7 @@ class CatFile {
             //console.log(`Debug: Decompression successful.`);
 
             // Convert the decompressed buffer to a string
-            const output = outputBuffer.toString();
+            const output = outputBuffer.toString().split("\x00")[1];
 
             //console.log(`Debug: File output:\n${output}`);
 
@@ -62,9 +62,7 @@ class CatFile {
         }
         break;
 
-      default:
-        console.error(`Error: Unsupported flag "${flag}"`);
-        break;
+      
     }
   }
 }

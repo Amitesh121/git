@@ -3,7 +3,7 @@ const path = require("path");
 
 const GitClient = require("./git/client");
 const CatFile = require("./git/commands/cat-file");
-
+const HashObject = require("./git/commands/hash-object");
 // You can use print statements as follows for debugging, they'll be visible when running tests
 // .
 
@@ -18,6 +18,8 @@ switch (command) {
     createGitDirectory();
   case "cat-file":
     handleCatCommands();
+    case "hash-object":
+      handleHashObjectCommands();
     break;
   default:
     throw new Error(`Unknown command ${command}`);
@@ -39,10 +41,18 @@ function createGitDirectory() {
 
 function handleCatCommands() {
 
-    const flag = process.argv[3];   //cat-file -p djejd12122
+    const tag = process.argv[3];   //cat-file -p djejd12122
     const commitHASH = process.argv[4];
 
-    const command = new CatFile(flag,commitHASH);
+    const command = new CatFile(tag,commitHASH);
     gitclient.run(command);
 
+}
+
+function handleHashObjectCommands(){
+  const tag = process.argv[3];   //cat-file -p djejd12122
+  const filename = process.argv[4];
+
+  const command = new HashObject(tag,filename);
+  gitclient.run(command);
 }

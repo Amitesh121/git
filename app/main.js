@@ -7,10 +7,9 @@ const HashObject = require("./git/commands/hash-object");
 // You can use print statements as follows for debugging, they'll be visible when running tests
 // .
 
-
 const gitclient = new GitClient();
 
-// Uncomment this block to pass the first stage
+// Uncomment this block to pass the first sflage
 const command = process.argv[2];
 
 switch (command) {
@@ -18,8 +17,8 @@ switch (command) {
     createGitDirectory();
   case "cat-file":
     handleCatCommands();
-    case "hash-object":
-      handleHashObjectCommands();
+  case "hash-object":
+    handleHashObjectCommands();
     break;
   default:
     throw new Error(`Unknown command ${command}`);
@@ -40,19 +39,23 @@ function createGitDirectory() {
 }
 
 function handleCatCommands() {
+  const flag = process.argv[3]; //cat-file -p djejd12122
+  const commitHASH = process.argv[4];
 
-    const tag = process.argv[3];   //cat-file -p djejd12122
-    const commitHASH = process.argv[4];
-
-    const command = new CatFile(tag,commitHASH);
-    gitclient.run(command);
-
+  const command = new CatFile(flag, commitHASH);
+  gitclient.run(command);
 }
 
-function handleHashObjectCommands(){
-  const tag = process.argv[3];   //cat-file -p djejd12122
-  const filename = process.argv[4];
+function handleHashObjectCommands() {
+  let flag  = process.argv[3]; //cat-file -p djejd12122
+  let filename = process.argv[4];
 
-  const command = new HashObject(tag,filename);
-  gitclient.run(command);
+  if (!filename) {
+    filename = flag;
+    flag = null;
+  }
+
+  // const command = new HashObject(flag, filename);
+  // gitclient.run(command);
+  console.log({flag,filename});
 }

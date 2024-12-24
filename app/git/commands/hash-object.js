@@ -1,60 +1,44 @@
-// const path = require("path");
-// const fs = require("fs");
-// const zlib = require("zlib");
-// const crypto = require("crypto"); // Import the crypto module
+const path = require("path");
+const fs = require("fs");
+const crypto = require("crypto");
+const zlib = require("zlib");
 
-// class HashObject {
-//   constructor(tag, filename) {
-//     this.tag = tag;
-//     this.filename = filename;
-//   }
+class HashObject {
+  constructor(flag, filename) {
+    this.flag = flag;
+    this.filename = filename;
+  }
 
-//   execute() {
-//     const tag = this.tag;
-//     const filename = this.filename;
+  execute() {
+    //make sure that the file is there
+    const filename = path.resolve(this.filename);
 
-//     switch (tag) {
-//       case "-w": {
-//         try {
-//           // Read the file content
-//           const data = fs.readFileSync(filename, "utf-8");
+    if (!fs.existsSync(filename)) {
+      throw new Error(`file not found ${filename}`);
+    }
+    //read the file
+    const filecontent = fs.readFileSync(filename);
+    const filelength = filecontent.length;
+    //create a blob
+    const header = `blob ${filelength}\0`;
+    const blob = Buffer.concat([Buffer.from(header), filecontent]);
+    const hash = crypto.createHash("sha1").update(blob).digest("hex");
 
-//           // Create a buffer from the file data
-//           const dataBuffer = Buffer.from(data, "utf-8");
+    if (this.flag && this.flag === "-w") {
+      const folder = hash.slice(0, 2);
+      const file = hash.slice(2);
 
-//           // Compute the SHA-1 hash
-//           const hash = crypto.createHash("sha1");
-//           hash.update(`blob ${dataBuffer.length}\0`); // Include Git's object header
-//           const sha1 = hash.digest("hex");
+      const completePath = path.join(process.cwd(), ".git", "objects", folder);
 
-//           // Construct the folder and file paths
-//           const folder = sha1.slice(0, 2);
-//           const file = sha1.slice(2);
-//           const completePath = path.join(
-//             process.cwd(),
-//             ".git",
-//             "objects",
-//             folder,
-//             file
-//           );
+      if (!fs.existsSync(completePath)) {
+        fs.mkdirSync(completePath);
+      }
 
-//           // Ensure the folder exists
-//           fs.mkdirSync(path.dirname(completePath), { recursive: true });
+      const compressedData = zlib.deflateSync(blob);
+      fs.writeFileSync(path.join(completePath, file), compressedData);
+    }
+    process.stdout.write(hash);
+  }
+}
 
-//           // Compress and write the file content
-//           fs.writeFileSync(completePath, zlib.deflateSync(dataBuffer));
-
-//           console.log(sha1); // Output the hash
-//         } catch (error) {
-//           console.error(`Error: ${error.message}`);
-//         }
-//         break;
-//       }
-
-//       default:
-//         console.error(`Unsupported tag: ${tag}`);
-//     }
-//   }
-// }
-
-// module.exports = HashObject;
+module.exports = HashObject;

@@ -55,7 +55,7 @@ function handleHashObjectCommands() {
     flag = null;
   }
 
-  // const command = new HashObject(flag, filename);
-  // gitclient.run(command);
-  console.log({flag,filename});
+  const command = new HashObject(flag, filename);
+  gitclient.run(command);
+ 
 }
